@@ -1,4 +1,4 @@
-# Python Formulas & Syntax Reference — Day 1-3
+# Python Formulas & Syntax Reference — Day 1-4
 
 *Syntax patterns and formulas only. For the "why" behind each, see Python-Concepts-and-Projects.md*
 
@@ -51,6 +51,12 @@ a or b    # at least one must be True
 not a     # flips True/False
 ```
 
+## String Repetition (not just for numbers)
+```python
+"=" * 40     # repeats the string 40 times — "========...="
+"ab" * 3     # "ababab" — works on any length string
+```
+
 ---
 
 ## Strings
@@ -83,6 +89,7 @@ s.replace(".", "", 1).isdigit()   # manual "is this a valid number" check
 ```python
 f"text {variable} more text"
 f"{a + b}"          # code inside {} is evaluated live
+f"{amount:.2f}"     # format spec — 2 decimal places, fixed-point
 ```
 
 ---
@@ -97,6 +104,8 @@ elif other_condition:
 else:
     ...
 ```
+
+**If/elif chains do NOT require an else.** With no else, if nothing matches, Python silently does nothing — no error, no output. Always add an else, even just as a defensive catch-all, in any chain meant to cover every expected case.
 
 **Truthy / Falsy check (what `if` does internally):**
 ```python
@@ -187,6 +196,37 @@ list1 == list2                # True if values match, regardless of identity
 
 ---
 
+## Tuples
+
+```python
+t = (1, 2, 3)                 # parentheses, ordered, IMMUTABLE
+t[0]                           # indexing works like lists
+t[1:]                          # slicing works like lists
+t[0] = 99                      # TypeError — item assignment not supported
+```
+
+---
+
+## Sets
+
+```python
+s = {1, 2, 3}                 # curly braces, unordered, no duplicates allowed
+s = {1, 2, 2, 1}               # automatically becomes {1, 2}
+s.add(item)
+s.remove(item)
+s[0]                           # TypeError — sets are not indexable
+{1, 2, [3, 4]}                  # TypeError — lists aren't hashable, can't go in a set
+```
+
+**Set operations:**
+```python
+a | b     # union — everything in either set
+a & b     # intersection — only what's in both
+a - b     # difference — in a, not in b (NOT symmetric: a-b != b-a)
+```
+
+---
+
 ## Menu / Exit Loop Template (calculator pattern)
 
 ```python
@@ -195,10 +235,14 @@ while True:
     choice = input("Enter your choice: ")
     if choice == "exit_value":
         break
-    elif choice == "option_1":
-        ...
-    elif choice == "option_2":
-        ...
+    elif choice in ("1", "2", "3", "4"):     # validity gate FIRST
+        amount = float(input("Enter amount: "))   # only runs if valid
+        if choice == "1":
+            ...
+        elif choice == "2":
+            ...
+        else:
+            print("Not implemented yet.")     # defensive inner else
     else:
         print("Invalid choice.")
 ```
@@ -209,7 +253,7 @@ while True:
 result = []          # or 0 if accumulating a number
 while True:
     entry = input("Enter value or 'done' to finish: ")
-    if entry == "done":
+    if entry == "done":         # check exit FIRST, before converting
         break
     elif entry.replace(".", "", 1).isdigit():   # validation, for numbers
         result.append(float(entry))              # or accumulate: result += float(entry)

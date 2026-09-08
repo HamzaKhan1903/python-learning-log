@@ -1,4 +1,4 @@
-# Python Concepts & Projects — Day 1-3
+# Python Concepts & Projects — Day 1-4
 
 *The "why" behind each pattern. For pure syntax, see Python-Formulas-Reference.md*
 
@@ -19,23 +19,29 @@ Every Python object bundles three things together in memory: its **type**, its *
 ### `==` vs `is`
 `==` asks "same value?" `is` asks "same object in memory?" Use `==` almost always. Use `is` specifically for `None` checks.
 
-### Mutability vs Immutability
+### Mutability vs Immutability — The Master Rule
 - **Mutable** (list, dict, set): can change in place — same object, same `id()`, before and after a change like `.append()`.
 - **Immutable** (int, float, str, bool, tuple): any "change" creates a brand-new object; the original is untouched.
 - Python never lets mutable objects share memory automatically — if it did, changing one label's list would silently corrupt every other label pointing at it. Caching/sharing is only ever safe for immutable types.
+
+### Hashability — Why Sets Can't Hold Lists
+A set needs a fast, reliable way to check "have I seen this value before" — it does this using a **hash** (a fixed fingerprint computed from the value). Only immutable types can be hashed reliably, because if a value could change after its hash was computed and filed away, the hash would go stale and silently corrupt the set's internal organization. This is why **only hashable (immutable) types can go inside a set** — a list inside a set raises `TypeError`, not because the values are wrong, but because the type itself is fundamentally incompatible with the operation.
 
 ### Type Conversion Rules
 Python never auto-converts between incompatible types (`"5" + 1` fails). Conversion must be explicit (`int()`, `str()`, `float()`). `int()` truncates toward zero; `round()` actually rounds — not the same operation.
 
 ### `ValueError` vs `TypeError`
 - **`ValueError`**: the type is correct but the content doesn't make sense for the conversion — e.g. `int("hello")`.
-- **`TypeError`**: two genuinely incompatible types are being combined — e.g. `"25" + 1` (string + int).
+- **`TypeError`**: two genuinely incompatible types/operations are being combined — e.g. `"25" + 1` (string + int), `tuple[0] = 99` (item assignment not supported on tuples), or a list inside a set (not hashable).
 Both are unhandled by default, meaning they stop the entire program immediately — nothing after them runs.
 
 ### Strings Are Immutable
 No string method changes the original — `.upper()`, `.replace()` etc. all return a **new** string. Must reassign (`s = s.upper()`) to actually keep the change.
 
-### Slicing Rule (strings, and `range()`)
+### String Repetition (`*`) vs String Addition (`+`)
+`+` between a string and an int is undefined and always raises `TypeError` — Python has no sensible universal meaning for "text plus a number." `*` between a string and an int IS defined — it means "repeat this string N times" (`"=" * 40` gives 40 equal signs). Each operator's valid behavior depends on the specific pair of types involved, not a general rule about which operator is "more forgiving."
+
+### Slicing Rule (strings, lists, tuples, and `range()`)
 Start is **included**, end is **excluded** — consistently, everywhere in Python. `s[1:4]` gives indexes 1, 2, 3 — never 4. `range(1, 4)` gives 1, 2, 3 — same rule.
 
 ### Truthy / Falsy
@@ -65,6 +71,12 @@ Even if the user types `25`, `input()` hands back `"25"`, not the number `25`. M
 ### `elif` vs Separate `if` Statements
 A chain of `if`/`elif`/`else` is checked in order and **stops at the first match** — the right choice for mutually exclusive options (a menu, a range of number bands). Separate standalone `if` statements are each checked independently every time, which is both wasteful and risks unintended double-execution if conditions ever overlap.
 
+### If/Elif Chains Do NOT Require an Else — and Why That's Dangerous
+An `else` is entirely optional. If none of the conditions match and there's no `else`, Python silently does nothing and moves on — no error, no output, no trace that anything happened. This is a genuinely more dangerous failure mode than a crash, because a crash tells you something went wrong; a silent no-op doesn't. **Lesson learned live tonight**: when new options are added to a validity check (an outer `elif choice in (...)`) but not mirrored inside a nested chain handling those options, the nested chain silently does nothing for the new option — the amount gets collected and thrown away with zero feedback. Two independent chains checking the same variable against the same values only stay in sync because a programmer manually keeps them consistent — nesting the specific-case chain inside the validity gate removes this risk structurally, since there's only one list of valid options to maintain, not two.
+
+### Format Specifiers in F-Strings
+`f"{value:.2f}"` — everything after the colon is a display instruction, not a substitution. `.2f` means: display as fixed-point notation (`f`), with exactly 2 digits after the decimal (`.2`). Useful for currency and any output where consistent decimal display matters. Note: a space before the format spec (`{value: .2f}`) has its own separate meaning (adds a leading space for positive numbers) — easy to type by accident, worth removing unless intentional.
+
 ---
 
 ## PART 2: PROJECTS
@@ -88,7 +100,15 @@ A chain of `if`/`elif`/`else` is checked in order and **stops at the first match
 **Concepts exercised:** `%` (modulo) for divisibility checks, `elif` ordering — the combined condition (divisible by both) must be checked before the individual ones, or numbers like 15 would incorrectly stop at "Fizz".
 **Real bug caught during build:** `range(1, 30)` excludes 30 itself — fixed to `range(1, 31)`, which also happened to be the one number that exercises the FizzBuzz branch.
 
+### Project 5 — Currency Converter
+**What it does:** menu-driven converter (USD↔INR, CAD↔INR), hardcoded exchange rates, formatted output using `.2f`.
+**Concepts exercised:** planning with a flowchart before writing any code, string repetition (`"=" * 40` for menu dividers), nested `if`/`elif` inside a validity gate, format specifiers.
+**Real bugs caught during build, in order:**
+1. `elif choice == 2:` comparing a string against an int — same category as Project 1's bug, caught independently this time.
+2. Unconditional `amount = float(input(...))` running even for invalid menu choices, before validity was checked — fixed by nesting the amount-collection inside a validity gate (`elif choice in ("1","2","3","4"):`).
+3. Deliberately reproduced the "missing else" bug by adding a 6th menu option to the outer gate without adding a matching branch to the inner chain — confirmed live that the program silently collects and discards the input with zero feedback when no `else` exists to catch the unhandled case.
+
 ---
 
 ## Still Open for Week 1
-Tuples, sets, dictionaries, `try`/`except`, list/dict comprehensions.
+Dictionaries, `try`/`except`, list/dict comprehensions.

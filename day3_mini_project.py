@@ -85,13 +85,12 @@ while True:
     print("3. Press 3 for CAD to INR conversion")
     print("4. Press 4 for INR to CAD conversion")
     print("5. Press 5 to exit")
-    print("6. Press 6 for USD to CAD conversion")
     print("=" * 40)
     choice = input("Enter choice: ")
     if choice == "5":
         print("Thank you for using the converter.")
         break
-    elif choice in ("1", "2", "3", "4", "6"):
+    elif choice in ("1", "2", "3", "4"):
         amount = float(input("Enter the amount: "))
         if choice == "1":
             result = amount * 90
