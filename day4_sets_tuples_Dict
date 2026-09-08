@@ -1,0 +1,35 @@
+print("--- Tuple basics ---")
+coordinates = (10, 20)
+print(coordinates)
+print(type(coordinates))
+
+print("--- Tuple indexing/slicing ---")
+point = (5, 10, 15)
+print(point[0])
+print(point[1:])
+
+'''print("--- Tuple immutability test ---")
+point = (5, 10, 15)
+point[0] = 99'''
+
+print("--- Set basics ---")
+numbers = {1, 2, 3, 2, 1}
+print(numbers)
+print(type(numbers))
+
+print("--- Set add/remove ---")
+fruits = {"apple", "banana"}
+fruits.add("cherry")
+print(fruits)
+fruits.remove("banana")
+print(fruits)
+
+a = {1, 2, 3, 4}
+b = {3, 4, 5, 6}
+print(a | b)
+print(a & b)
+print(a - b)
+print(b - a)
+
+print("--- Sets can't hold mutable items ---")
+my_set = {1, 2, [3, 4]}
