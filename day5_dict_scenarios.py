@@ -53,38 +53,6 @@ for word, length in word_length.items():
 print(longest_length)
 print(longest_word)
 
-'''
-print("=== Shopping cart by category====")
-item_names = ["bread", "milk", "notebook", "eggs", "pen"]
-prices = [3.5, 2.8, 1.2, 4.0, 0.9]
-categories = ["grocery", "grocery", "stationery", "grocery", "stationery"]
-category_total ={}
-for index, item in enumerate(item_names):
-    category_total[item] = prices[index]
-print(category_total)
-print(category_total.items())
-
-
-print("=== Shopping cart by category====")
-item_names = ["bread", "milk", "notebook", "eggs", "pen"]
-prices = [3.5, 2.8, 1.2, 4.0, 0.9]
-categories = ["grocery", "grocery", "stationery", "grocery", "stationery"]
-category_total ={}
-running_total=0
-for index, categories in enumerate(categories):
-    category_total[categories] = item_names[index]
-print(category_total)
-
-print("=== Shopping cart by category====")
-item_names = ["bread", "milk", "notebook", "eggs", "pen"]
-prices = [3.5, 2.8, 1.2, 4.0, 0.9]
-categories = ["grocery", "grocery", "stationery", "grocery", "stationery"]
-category_total ={}
-running_total=0
-for index, category in enumerate(categories):
-    category_total[category] = prices[index]
-print(category_total)
-'''
 
 print("=== Shopping cart by category====")
 item_names = ["bread", "milk", "notebook", "eggs", "pen"]
@@ -105,4 +73,56 @@ for category, total in category_total.items():
         highest_total = total
 print(highest_category)
 print(highest_total)
+
+print("==== Temperature Classifier===")
+cities = ["Toronto", "Dubai", "Moscow", "Mumbai", "Reykjavik"]
+temps = [22, 41, -5, 34, 8]
+city_temp ={}
+for index, city in enumerate(cities):
+    city_temp[city] = temps[index]
+print(city_temp)
+for city, temp in city_temp.items():
+    if temp >= 30:
+        print(city, "Hot")
+    elif temp < 10:
+        print(city, "Cold")
+    else:
+        print(city, "Moderate")
+hottest_city = cities[0]
+hottest_temp = temps[0]
+for city, temp in city_temp.items():
+    if temp > hottest_temp:
+        hottest_city = city
+        hottest_temp = temp
+print(hottest_city)
+print(hottest_temp)
+print(hottest_city, hottest_temp)
+
+
+
+print("====student scores list of lists=====")
+students = ["Ravi", "Meera", "John"]
+test_scores = [[80, 90, 70], [60, 65, 70], [95, 88, 92]]
+#pair each student with their avg score
+# avg = sum(n)/n
+#create a new list first
+avg_score = []
+for score in test_scores:
+    average = sum(score)/len(score)
+    avg_score.append(average)
+print(avg_score)
+#create empty dict
+student_avg = {}
+# fill value in dict
+for index, student in enumerate(students):
+    student_avg[student] = avg_score[index]
+print(student_avg)
+highest_avg = 0
+highest_avg_student = ""
+for student, average in student_avg.items():
+    if average > highest_avg:
+        highest_avg = average
+        highest_avg_student = student
+print("The student with highest average is ", highest_avg_student, " with an average of ", highest_avg)
+
 
