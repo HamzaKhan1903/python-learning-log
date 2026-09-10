@@ -108,3 +108,41 @@ while True:
         print("Invalid choice. Select an appropirate option from the menu.")
     
 
+print("====Week 1 Capstone - Student grader====")
+student_grade = {}
+while True:
+    print("=" *40)
+    print("1- Add a student")
+    print("2- View all students")
+    print("3- Find a students grade")
+    print("4- Class average")
+    print("5- Exit")
+    option = input("Select an option:")
+    if option == "5":
+        break
+    elif option == "1":
+        name = input("Enter studens name: ")
+        try:
+            grade = float(input("Enter student grade: "))
+            student_grade[name] = grade
+        except ValueError:
+            print("Invalid grade. Please enter a number.")
+    elif option == "2":
+        for name, grade in student_grade.items():
+            print(name, grade)
+        honors_list = [name for name, grade in student_grade.items() if grade > 80]
+        print(honors_list)
+    elif option == "3":
+        find = input("Enter students name: ")
+        result = student_grade.get(find, "No student found")
+        print(result)
+    elif option == "4":
+        grades = student_grade.values()
+        try:
+            average_grade = sum(grades)/ len(student_grade)
+            print(average_grade)
+        except ZeroDivisionError:
+            print("No students found, first add the students")
+    else:
+        print("Invalid selection, Select an appropriate option from the menu")
+
