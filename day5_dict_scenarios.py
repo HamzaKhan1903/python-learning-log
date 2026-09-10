@@ -126,3 +126,19 @@ for student, average in student_avg.items():
 print("The student with highest average is ", highest_avg_student, " with an average of ", highest_avg)
 
 
+print("=== Attendance tracker====")
+students = ["Ravi", "Meera", "John", "Sana"]
+attendance = [True, False, True, True]
+student_attendance = {}
+for index, student in enumerate(students):
+    student_attendance[student] = attendance[index]
+print(student_attendance)
+present = 0
+absent = 0
+for student, attend in student_attendance.items():
+    if attend:
+        present += 1
+    else:
+        absent += 1
+print(present, " students were present")
+print(absent, " students were absent")
