@@ -181,3 +181,29 @@ for book, details in books.items():
     item_penalty = calculate_penalty(days, fees)
     total_late_fee += item_penalty
 print(total_late_fee)
+
+
+print("===== Bulk Pricing Calculator =====")
+orders = {"apples": 12, "bananas": 3, "oranges": 25}
+def price(quantity):
+    if quantity > 10:
+        price_per_item = 0.20
+    else:
+        price_per_item = 0.80
+    cost = price_per_item * quantity
+    return cost
+
+grand_total = 0
+for item, quantity in orders.items():
+    item_total = price(quantity)
+    #print(item_total)
+    grand_total += item_total
+print(grand_total)
+def apply_discount(amount, discount_percent=10):
+    if amount > 15:
+        discount = amount * discount_percent/100
+    else:
+        discount = 0
+    final_amount = amount - discount
+    return final_amount
+print(apply_discount(grand_total))
