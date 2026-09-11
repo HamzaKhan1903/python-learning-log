@@ -146,3 +146,38 @@ while True:
     else:
         print("Invalid selection, Select an appropriate option from the menu")
 
+
+
+
+print("======= Week 1 Capstone with functions - order total calculator ====")
+cart = {"notebook": (2.5, 3), "pen": (0.9, 5)}
+
+def calculate_item_total(price, quantity):
+    return price * quantity
+
+# Now, OUTSIDE the function, loop through the cart and call it once per item:
+running_total = 0
+for item, details in cart.items():
+    price = details[0]
+    quantity = details[1]
+    item_total = calculate_item_total(price, quantity)
+    running_total += item_total
+
+print(running_total)
+def apply_tax(amount, tax_rate=0.13):
+    return amount + (amount * tax_rate)
+print(apply_tax(running_total))
+
+
+print("=====Library late fees calculator========")
+books = {"Python Basics": (5, 3), "Clean Code": (2, 10)}
+def calculate_penalty(days, fees):
+    return days * fees
+
+total_late_fee = 0
+for book, details in books.items():
+    days = details[0]
+    fees = details[1]
+    item_penalty = calculate_penalty(days, fees)
+    total_late_fee += item_penalty
+print(total_late_fee)
