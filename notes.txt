@@ -1,0 +1,2 @@
+Hello, this is my edited file.
+This is a new line added without deleting the old content.

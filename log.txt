@@ -1,0 +1,6 @@
+KeyError-Missing Key
+ValueError-incorrect data type
+FileNotFoudnError-Missing file
+KeyError-Missing Key
+ValueError-incorrect data type
+FileNotFoudnError-Missing file
