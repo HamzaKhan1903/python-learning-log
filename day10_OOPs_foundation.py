@@ -55,6 +55,8 @@ class Employee:
         return self.hourly_rate * self.hours_worked
     def is_overtime(self):
         return self.hours_worked > 40
+    def __str__(self):
+        return f"{self.name}: ${self.calculate_pay()}"
 
 '''print("--- Testing missing attribute ---")
 emp1 = Employee("Sara", 25, 45)
@@ -95,7 +97,7 @@ while True:
             print("Enter valid details.")
     elif choice == "2":
         for employee in emp:
-            print(employee.__dict__)
+            print(employee)
     else:
         print("Invalid choice. Select the correct option.")
 
