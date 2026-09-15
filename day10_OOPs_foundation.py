@@ -110,3 +110,9 @@ for employee in emp:
 print("--- Verifying via __dict__ ---")
 for employee in emp:
     print(employee.__dict__)
+
+
+print("--- Testing the ternary expression standalone ---")
+x = 5
+result = "big" if x > 3 else "small"
+print(result)
