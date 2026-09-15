@@ -51,6 +51,15 @@ class Book:
     def __str__(self):
         return f"{self.title} by {self.author} is {'unavailable' if self.is_checked_out else 'available'}"
 
+class Library:
+    def __init__(self, books: list[Book]):
+        self.books = books 
+    def list_available_books(self):
+        for book in self.books:
+            if not book.is_checked_out:
+                print(book.title)
+
+
 books = [
     Book("Python Basics", "Alice"),
     Book("SQL Fundamentals", "Bob"),
@@ -64,3 +73,7 @@ books[0].check_out()
 print(books[0].is_checked_out)
 for book in books:
     print(book)
+
+my_library = Library(books)
+print("====printing available books====")
+my_library.list_available_books()
