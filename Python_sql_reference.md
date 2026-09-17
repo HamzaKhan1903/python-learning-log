@@ -116,6 +116,136 @@ A `JOIN` does NOT merge or delete tables — it produces a **combined result set
 
 ---
 
+## JOIN Types — INNER, LEFT, RIGHT
+
+Plain `JOIN` defaults to `INNER JOIN`. Tested directly against a dataset with a deliberate mismatch: Sana (employee, no department) and Marketing (department, no employee).
+
+**INNER JOIN — only rows with a match on BOTH sides:**
+```sql
+SELECT employees.name, departments.department_name
+FROM employees
+INNER JOIN departments ON employees.id = departments.employee_id;
+```
+Result: `[('Priya', 'Engineering'), ('Ravi', 'Sales')]` — Sana and Marketing both silently excluded entirely, since neither has a matching row on the other side.
+
+**LEFT JOIN — every row from the LEFT (FROM) table, NULL fills any missing right-side match:**
+```sql
+SELECT employees.name, departments.department_name
+FROM employees
+LEFT JOIN departments ON employees.id = departments.employee_id;
+```
+Result: `[('Priya', 'Engineering'), ('Ravi', 'Sales'), ('Sana', None)]` — Sana now included, with `None` (SQL's `NULL`) where a department would be.
+
+**RIGHT JOIN — every row from the RIGHT table, NULL fills any missing left-side match:**
+```sql
+-- SQLite does NOT support RIGHT JOIN natively (OperationalError).
+-- Workaround: swap which table is written first, and use LEFT JOIN instead.
+SELECT employees.name, departments.department_name
+FROM departments
+LEFT JOIN employees ON departments.employee_id = employees.id;
+```
+Result: `[('Priya', 'Engineering'), ('Ravi', 'Sales'), (None, 'Marketing')]` — Marketing now included, `None` where an employee would be. Logically identical to a true `RIGHT JOIN`, just rephrased as a `LEFT JOIN` with the tables swapped.
+
+**When to use which:**
+- `INNER JOIN` — only care about complete, matched pairs (e.g. "employees who currently have a department").
+- `LEFT JOIN` — the left table is the primary list; want everything in it regardless of a match (e.g. "every employee, with department if they have one" — usually the more complete, honest business question).
+
+**Caution:** defaulting to `INNER JOIN` out of habit is a common real mistake — it silently drops unmatched rows with zero warning, exactly like an `if`/`elif` chain with no `else`. If a report seems to be missing data nobody can explain, an accidental `INNER JOIN` where a `LEFT JOIN` was needed is a frequent real cause.
+
+**Cross-database note:** `RIGHT JOIN`/`FULL OUTER JOIN` support varies by database engine — SQLite lacks both; PostgreSQL/MySQL 8+/SQL Server support `RIGHT JOIN`. Core SQL (`SELECT`, `WHERE`, `INNER JOIN`, `LEFT JOIN`) is portable; some specific features are not.
+
+**Passing multi-line SQL to `cursor.execute()`:** must be one string — either squeezed onto one line inside `"..."`, or spanning multiple lines using triple quotes (`"""..."""`), same as any other Python string. `cursor.execute()` only ever runs ONE statement per call (tested directly — two `SELECT`s in one string raises `ProgrammingError`), partly a deliberate security measure against SQL injection. For multiple statements that don't need results back (e.g. setup/cleanup), use `cursor.executescript("""stmt1; stmt2;""")` instead — for multiple `SELECT`s where you need each result, just call `execute()` + `fetchall()` separately per query.
+
+---
+
+## GROUP BY & Aggregate Functions
+
+**Generic syntax:**
+```sql
+SELECT column, AGGREGATE_FUNCTION(column)
+FROM table
+GROUP BY column;
+```
+
+**Real example — average salary per department:**
+```python
+cursor.execute("""
+    SELECT departments.department_name, AVG(employees.salary)
+    FROM employees
+    JOIN departments ON employees.id = departments.employee_id
+    GROUP BY departments.department_name
+""")
+print(cursor.fetchall())
+# [('Engineering', 68500.0), ('Sales', 69000.0)]
+```
+`GROUP BY` collapses multiple rows sharing the same value into ONE summary row per group. Output shape: one row per group, not per original row.
+
+**Common aggregate functions (same pattern, swap the function name):**
+```sql
+COUNT(column)    -- how many rows in each group
+SUM(column)       -- total, not average
+AVG(column)        -- average
+MAX(column)         -- highest value in the group
+MIN(column)          -- lowest value in the group
+GROUP_CONCAT(column)  -- SQLite: combines every value in the group into one comma-separated string
+                          -- (PostgreSQL equivalent: STRING_AGG — function name varies by database)
+```
+
+⚠️ **Real, tested gotcha:** selecting a plain, non-aggregated column alongside `GROUP BY` (e.g. `SELECT department_name, employees.name ... GROUP BY department_name`) does NOT error in SQLite — it silently returns just ONE arbitrary value from the group (whichever row it happened to encounter first), discarding the rest, with zero warning. Only select columns that are either the `GROUP BY` column itself, or wrapped in an aggregate function — anything else gives a misleading, unreliable result.
+
+---
+
+## ORDER BY
+
+**Generic syntax:**
+```sql
+SELECT columns FROM table ORDER BY column DESC;
+```
+
+**Real example:**
+```sql
+SELECT name, salary FROM employees ORDER BY salary DESC;
+
+SELECT departments.department_name, AVG(employees.salary)
+FROM employees
+JOIN departments ON employees.id = departments.employee_id
+GROUP BY departments.department_name
+ORDER BY AVG(employees.salary) DESC;
+```
+`DESC` = highest to lowest. `ASC` (or omitted — it's the default) = lowest to highest. Can sort directly by an aggregate function's result, not just a plain column.
+
+---
+
+## WHERE vs HAVING
+
+`WHERE` filters individual rows **before** grouping happens — aggregate functions don't exist yet at that stage, so `WHERE AVG(...)` is not valid.
+`HAVING` filters **after** grouping/aggregation — this is the correct tool for "only show groups where [aggregate condition]."
+
+```sql
+SELECT departments.department_name, AVG(employees.salary)
+FROM employees
+JOIN departments ON employees.id = departments.employee_id
+GROUP BY departments.department_name
+HAVING AVG(employees.salary) > 68600;
+```
+
+**SQL clause precedence — two separate orders, worth not confusing:**
+
+*Mandatory WRITING order (syntax rule):*
+```
+SELECT → FROM → JOIN → WHERE → GROUP BY → HAVING → ORDER BY
+```
+
+*Actual LOGICAL processing order (what happens first, internally):*
+```
+1. FROM / JOIN  →  2. WHERE  →  3. GROUP BY  →  4. aggregate functions calculated  →  5. HAVING  →  6. ORDER BY (last)
+```
+This is exactly why `ORDER BY` can reference an aggregate like `AVG(...)` even though it's "defined" in the `SELECT` line — by the time `ORDER BY` actually runs (last, logically), the aggregate values already exist.
+
+The semicolon `;` just marks the end of one complete SQL statement — not tied to any specific clause.
+
+---
+
 ## TCL — Transaction Control Language
 
 **Generic syntax:**
