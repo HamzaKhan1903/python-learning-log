@@ -118,3 +118,9 @@ for student, score in student_score.items():
 print(pass_count)
 print(fail_count)
 
+
+
+print("--- Confirming dict quote display ---")
+d = {"name": "Priya", "age": 30}
+print(d)
+print(type(d))
